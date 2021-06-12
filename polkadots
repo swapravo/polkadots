@@ -100,7 +100,7 @@ help(){
 	echo $'\n'
         echo "Usage:"
 	echo "$0 -a [Account] -n [Account name] -h [Password hash] -i [iterations]"
-        echo $'\t\t' 'Generate hashed password with: openssl passwd -6 password@123'
+        echo $'\t\t' 'Generate hashed passwords with: openssl passwd -6 password@123'
 	echo "Defaults: "
 	echo $'\t'"-a $account"
 	echo $'\t'"-n $account_name"

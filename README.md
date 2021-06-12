@@ -1,16 +1,18 @@
 # polkadots
 ## CVE-2021-3560 Local PrivEsc Exploit
 
+##### This exploit creates a new privileged user with which you can escalate to root.
+\
 Affected Distributions:
 * RHEL 8
 * Fedora 21
 * Debian testing (Bullseye)
 * Ubuntu 20.04
 
-## Usage
+### Usage
 
     ./polkadots -a [Account] -n [Account name] -h [Password hash] -i [iterations]
-		     Generate hashed password with: openssl passwd -6 password@123
+		     Generate hashed passwords with: openssl passwd -6 password@123
 
     Defaults:
         -a boris
